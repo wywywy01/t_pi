@@ -36,29 +36,97 @@ def pre_deal():
         # np.savetxt('E:\\forpython\\featvector.csv', data_to_save, delimiter=',')
         # ui = pd.read_csv(r'user_install3.csv',sep = ',')
         # app_cate = pd.read_csv(r'E:\dataset\app_categories.csv', sep=',')
-        # train = pd.read_csv(r'E:\dataset\results\train.csv', sep=',')
+        # train = pd.read_csv(r'E:\dataset\train.csv', sep=',')
+        # train_start_end = pd.read_csv(r'E:\dataset\train_start_end.csv', sep=',')
+        # train_feature = pd.read_csv(r'E:\dataset\train_feature.csv', sep=',')
+
         # test = pd.read_csv(r'E:\dataset\results\test.csv', sep=',')
 
         # train_id = pd.read_csv(r'E:\dataset\train_ids.csv', sep=',')
         tr_te = pd.read_csv(r'E:\dataset\results\tr_te_27_1.csv', sep = ',')
-        label_1 = pd.read_csv(r'E:\dataset\results\label_1.csv', sep=',')
-
+        # label_1 = pd.read_csv(r'E:\dataset\results\label_1.csv', sep=',')
+        # ui = pd.read_csv(r'E:\dataset\ui_sum.csv', sep=',')
     except:
         print "打开文件的时候出错!" * 10
+    #时间信息：clickTime，170000
+    # 采样10%
+    # sample_pct = 0.1
+    # if sample_pct < 1.0:
+    #     np.random.seed(999)
+    #     r1 = np.random.uniform(0, 1, tr_te.shape[0])  # 功能：从一个均匀分布[low,high)中随机采样，注意定义域是左闭右开，即包含low，不包含high.
+    #     tr_te = tr_te.ix[r1 < sample_pct, :]
+    #     print "testing with small sample of training data, ", tr_te.shape  # 采样的验证集
+
+    #'hour1','day_hour','day_hour_prev','day_hour_prev','day_hour_next'
+    tr_te['day'] = np.round(tr_te.clickTime / 10000)    # 天，170000，从17号开始
+    tr_te['hour1'] = np.round(tr_te.clickTime / 100 % 100)          # 每天的小时
+    tr_te['day_hour'] = (tr_te.day.values - 17) * 24 + tr_te.hour1.values  # 时间信息转化成为小时表达
+    tr_te['day_hour_prev'] = tr_te['day_hour'] - 1  # 每个数据前一小时的值
+    tr_te['day_hour_next'] = tr_te['day_hour'] + 1  # 后一小时值
+
+    # cntDualKey(tr_te, 'positionID', None, 'day_hour', 'day_hour_prev', fill_na = False)
+    # cntDualKey(tr_te, 'positionID', None, 'day_hour', 'day_hour', fill_na = False)
+    # cntDualKey(tr_te, 'positionID', None, 'day_hour', 'day_hour_next', fill_na = False)
+
+    print "to create day diffs"
+    # tr_te['pday'] = tr_te.day - 1
+
+    # calcDualKey(tr_te, 'positionID', None, 'day', 'pday', 'label', 10, None, True, True)  # 添加前一天点击率,很关键
+    # calcDualKey(tr_te, 'creativeID', None, 'day', 'pday', 'label', 10, None, True, True)  # 添加前一天点击率,很关键
+    # calcDualKey(tr_te, 'appID', None, 'day', 'pday', 'label', 10, None, True, True)  # 添加前一天点击率,很关键
+
+    # tr_te['cnt_diff_positionID_day_pday'] = tr_te.cnt_positionID_day.values - tr_te.cnt_positionID_pday.values  # 做一个差分的处理
+
+    # tr_te['app_cnt_by_dev_ip'] = my_grp_cnt(tr_te.positionID.values.astype('string'), tr_te.adID.values.astype('string'))
+    #
+    # tr_te['rank_positionID'] = my_grp_idx(tr_te.positionID.values.astype('string'), tr_te.userID.values.astype('string'))
+    # tr_te['rank_camgaignID'] = my_grp_idx(tr_te.camgaignID.values.astype('string'),
+    #                                       tr_te.userID.values.astype('string'))
+    # tr_te['rank_creativeID'] = my_grp_idx(tr_te.creativeID.values.astype('string'),
+    #                                       tr_te.userID.values.astype('string'))
+    # tr_te['rank_advertiserID'] = my_grp_idx(tr_te.advertiserID.values.astype('string'),
+    #                                       tr_te.userID.values.astype('string'))
+    #
+    #
+    # tr_te['rank_day_positionID'] = my_grp_idx(np.add(tr_te.positionID.values, tr_te.day.values).astype('string'),tr_te.userID.values.astype('string'))
+    # tr_te['rank_day_camgaignID'] = my_grp_idx(np.add(tr_te.camgaignID.values, tr_te.day.values).astype('string'),tr_te.userID.values.astype('string'))
+    # tr_te['rank_day_creativeID'] = my_grp_idx(np.add(tr_te.creativeID.values, tr_te.day.values).astype('string'),tr_te.userID.values.astype('string'))
+    # tr_te['rank_day_advertiserID'] = my_grp_idx(np.add(tr_te.advertiserID.values, tr_te.day.values).astype('string'),tr_te.userID.values.astype('string'))
+    #
+    # tr_te['rank_position_adID'] = my_grp_idx(np.add(tr_te.positionID.values, tr_te.adID.values).astype('string'),tr_te.userID.values.astype('string'))
+    # tr_te['rank_positionID_creativeID'] = my_grp_idx(np.add(tr_te.positionID.values, tr_te.creativeID.values).astype('string'),tr_te.userID.values.astype('string'))
+    # tr_te['rank_camgaignID_adID'] = my_grp_idx(np.add(tr_te.camgaignID.values, tr_te.adID.values).astype('string'),tr_te.userID.values.astype('string'))
+    # tr_te['rank_position_connectionType'] = my_grp_idx(np.add(tr_te.positionID.values, tr_te.connectionType.values).astype('string'),tr_te.userID.values.astype('string'))
+    # tr_te['rank_age_marriageStatus'] = my_grp_idx(np.add(tr_te.age.values, tr_te.marriageStatus.values).astype('string'),tr_te.userID.values.astype('string'))
+
+
+
+
+    # tr_te['diff_cnt_dev_ip_hour_phour_aw2_prev'] = (tr_te.cnt_positionID_day_hour.values - tr_te.cnt_positionID_day_hour_prev.values)
+    # tr_te['diff_cnt_dev_ip_hour_phour_aw2_next'] = (tr_te.cnt_positionID_day_hour.values - tr_te.cnt_positionID_day_hour_next.values)
+
     #测试新数据的效果及分析用户
     if(0):
+
+
+
         train = np.logical_and(tr_te.label > -1,1)
         train_data = tr_te.ix[train,:]
+        train_data['hour'] = (train_data.clickTime.values / 100 % 100)
+        train_id = train_data.loc[:, ['appCategory', 'hour']]
+        train_data['train_ids'] = test_kmeans_cluster(train_id)
+
 
         # train_data['hometown_fa'] = pd.factorize(train_data['hometown'])[0]
         # train_data['residence_fa'] = pd.factorize(train_data['residence'])[0]
         train_data['residence_hometown'] = train_data['residence'] + train_data['hometown']
         train_data['site_position'] = train_data['sitesetID'] + train_data['positionType']
+
         test_features = ['connectionType','telecomsOperator',
                          'appPlatform','appCategory','gender','education',
                          'marriageStatus','haveBaby','sitesetID','positionType']
 
-        test_features_new = ['residence_hometown','site_position']
+        test_features_new = ['train_ids']
 
         for features in test_features_new:
             means = train_data.groupby([train_data[features], train_data['label']])['label']
@@ -101,24 +169,22 @@ def pre_deal():
             r1 = np.random.uniform(0, 1, train.shape[0])  # 功能：从一个均匀分布[low,high)中随机采样，注意定义域是左闭右开，即包含low，不包含high.
             train = train.ix[r1 < sample_pct, :]
             print "testing with small sample of training data, ", train.shape  # 采样的验证集
-    tr_te['day'] = deal_date(tr_te.clickTime.values)
 
-    tr_te['residence_hometown'] = tr_te['residence'] + tr_te['hometown']
-    tr_te['site_position'] = tr_te['sitesetID'] + tr_te['positionType']
+
 
     count_list = ['camgaignID','appID','adID', 'creativeID', 'advertiserID', 'positionID', 'residence', 'hometown',
                   ]
-
-    n_ks = {'camgaignID':100,'appID':100,'adID': 100, 'creativeID': 100, 'advertiserID': 100, 'positionID': 50, 'residence': 50,
+    count_list  = []
+    n_ks = {'camgaignID':100,'appID':100,'adID': 100, 'creativeID': 100, 'advertiserID': 30, 'positionID': 100, 'residence': 100,
             'hometown': 100}
     exp2_dict = {}
     for vn in count_list:
         exp2_dict[vn] = np.zeros(tr_te.shape[0])
     days_npa = tr_te.day.values
 
-    #历史转换率的统计
-    for day_v in xrange(18, 32):
-        df1 = tr_te.ix[np.logical_and(tr_te.day.values < day_v, tr_te.day.values < 31), :].copy()
+    #历史转换率的统计，第一周作为统计的数据
+    for day_v in xrange(23, 32):
+        df1 = tr_te.ix[np.logical_and(tr_te.day.values < day_v, tr_te.day.values < 24), :].copy()
         df2 = tr_te.ix[tr_te.day.values == day_v, :].copy()
         pred_prev = df1.label.values.mean() * np.ones(df1.shape[0])  # 历史点击率的平均值
 
@@ -149,15 +215,6 @@ def pre_deal():
     for vn in count_list:
         tr_te['exp2_' + vn] = exp2_dict[vn]
 
-    tr_te['residence_hometown_model'] = np.add(tr_te.hometown.values, tr_te.residence.values)
-
-
-
-
-
-    print "Finish load data,",tr_te.shape
-
-    print tr_te.head(10)
 
 
     start = time.clock()
@@ -172,35 +229,21 @@ def pre_deal():
         tr_te.to_csv(r'E:\dataset\results\tr_te_27_1.csv', index=False, sep=',')
         print tr_te.appCategory.value_counts()
         return 1
-    #时间处理310000
-
-    # tr_te['hour1'] = np.round(tr_te.clickTime / 100 % 100)  # 每天的小时
-    # tr_te['day_hour'] = (tr_te.day.values - 17) * 24 + tr_te.hour1.values  # 时间信息转化成为小时表达
-    # tr_te['day_hour_prev'] = tr_te['day_hour'] - 1  # 每个数据前一小时的值
-    # tr_te['day_hour_next'] = tr_te['day_hour'] + 1  # 后一小时值
-    #统计点击次数
-    # list_click_count = ['appID','adID','creativeID','advertiserID','positionID']
-    # for list_ID in list_click_count:
-    #     tr_te['cnt_click_'+ list_ID] = get_agg(tr_te_count[list_ID].values, tr_te_count.index, np.size)
-
-    #统计历史转换率
-    # list = ['adID','creativeID','advertiserID','positionID','residence','hometown']
-    # list = []
 
     if (1):
         filter_test = np.logical_and(tr_te.day.values == 31, 1)
-        filter_train = np.logical_and(tr_te.day.values < 23, tr_te.day.values > 16)
-        # filter_va = np.logical_and(tr_te.day.values < 31, tr_te.day.values > 29)
+        filter_train = np.logical_and(tr_te.day.values < 27, tr_te.day.values > 23)
+        # filter_va = np.logical_and(tr_te.day.values == 22, 1)
         # 训练集,测试集
         train = tr_te.ix[filter_train, :].copy()
         test = tr_te.ix[filter_test, :].copy()
 
         # va = tr_te.ix[filter_va, :].copy()
         #'adID','creativeID','advertiserID','positionID','appID',
-        train = train.drop(['creativeID','appID','conversionTime', 'clickTime','conversionTime', 'userID', 'day', 'instanceID'], 1)
-        # va = va.drop(['adID','creativeID','advertiserID','positionID','appID', 'conversionTime', 'clickTime','conversionTime', 'userID', 'day', 'instanceID'], 1)
+        train = train.drop(['hour1','day_hour','day_hour_prev','day_hour_prev','day_hour_next','appID','conversionTime', 'clickTime', 'userID', 'day', 'instanceID'], 1)
+        # va = va.drop(['hour1','day_hour','day_hour_prev','day_hour_prev','day_hour_next','appID','conversionTime', 'clickTime', 'userID', 'day', 'instanceID'], 1)
 
-        test = test.drop(['creativeID','appID','conversionTime', 'clickTime','conversionTime', 'userID', 'day'], 1)  # 删除train3.csv中的一些列
+        test = test.drop(['hour1','day_hour','day_hour_prev','day_hour_prev','day_hour_next','appID','conversionTime', 'clickTime','conversionTime', 'userID', 'day'], 1)  # 删除train3.csv中的一些列
         '''
         train = train.drop(['appID', 'conversionTime', 'clickTime', 'userID', 'day', 'instanceID',
                             'cluster_positionType_connectionType', 'cluster_advertiserID_positionType',
@@ -229,87 +272,28 @@ def pre_deal():
         # train.fillna(0)
         # test.fillna(0)
 
-        train.to_csv(r'E:\dataset\train_31_1.csv', index=False, sep=',')
-        test.to_csv(r'E:\dataset\test_31_1.csv', index=False, sep=',')
-        # va.to_csv(r'E:\dataset\va_27_1.csv', index=False, sep=',')
+        train.to_csv(r'E:\dataset\train_6_3.csv', index=False, sep=',')
+        test.to_csv(r'E:\dataset\test_6_3.csv', index=False, sep=',')
+
+
         end = time.clock()
 
         print('Running time: %s Seconds' % (end - start))
         return 1
 
-    print test.adID.value_counts()
-
-    test['cnt_ad_id'] = get_agg(test.adID.values, test.instanceID, np.size)#统计每一个ID出现的次数，并归一化处理
-    test['ad_id_cnt2'] = np.minimum(test.cnt_ad_id.astype('int32').values, 300)#出现次数大于三百的用300表示
-    test['ad_id2plus'] = test.adID.values                                      #方便对比每个ID出现的次数
-    test.ix[test.cnt_ad_id.values == 1, 'ad_id2plus'] = '___only1'
-    test.to_csv(r'E:\dataset\test_count.csv', sep=',')
-    return 1
-
     ############################################################
     #将ID数据进行聚类利用creativeID,adID,camgaignID,advertiserID
-    if(0):
-        train_id = train.loc[:,['appCategory','clickTime']]
-        test_id = test.loc[:, ['appCategory','clickTime']]
-        # train_id.to_csv(r'E:\dataset\train_s.csv', index = True, sep = ',')
-        # test_id.to_csv(r'E:\dataset\test_ids.csv', index = True, sep = ',')
+    # if(0):
+    #     train_id = train.loc[:,['appCategory','clickTime']]
+    #     train_ids = test_kmeans_cluster(train_id)
+    #     test_ids = test_kmeans_cluster(test_id)
 
-        start = time.clock()
-        train_ids = test_kmeans_cluster(train_id)
-        test_ids = test_kmeans_cluster(test_id)
-        print "*********************train_ids******************"
-        print train_id.head(10)
-        print "*********************test_ids******************"
-        print test_id.head(10)
-        print "正在写入文件！！！！！"
-        train_ids.to_csv(r'E:\dataset\train_time_cluster.csv',index = False, sep = ',')
-        test_ids.to_csv(r'E:\dataset\test_time_cluster.csv', index=False, sep =',')
-        end = time.clock()
-        print('Running time: %s Seconds'%(end-start))
-        return 1
-    #仅利用地址信息的一级编码hometown,residence
-    '''
-    user_residence = user_info.residence / 100
-    user_hometown = user_info.hometown / 100
-    user_residence = user_residence.astype('int')
-    user_hometown = user_hometown.astype('int')
 
-    user_info['hometown'] = user_hometown
-    user_info['residence'] = user_residence
-    user_info.to_csv(r'E:\dataset\user_del_place.csv', index = False, sep = ',')
-    print user_info.hometown.value_counts()
-    print('******************* hometown的类型********************')
-    print user_info.residence.value_counts()
-    print('******************* residence的类型********************')
-    # print app_cate.appCategory.value_counts()
-    # print app_cate1.appCategory.value_counts()
-    return 1
-    '''
-    # start = time.clock()
-    # lables = [0,1,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]
-    # train['age'] = pd.cut(train.age, [0,1,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,47,61,100], right=False, labels=lables)
-    # test['age'] = pd.cut(test.age, [0,1,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,47,61,100], right=False, labels=lables)
-    #
-    # train.fillna(24.0)
-    # test.fillna(24.0)
-    # # print train.appCategory.value_counts()
-    #
-    # a1 = OneHotEncoder(sparse=False).fit_transform(app_cate[['appCategory']])
-    # a2 = app_cate.drop(['appCategory'],1)
-    # # enc = preprocessing.OneHotEncoder()
-    # # ad_categary = app_cate.appCategory
-    # # ad_categary = enc.fit(ad_categary).transform(ad_categary)
-    # a1 = DataFrame(a1)
-    # # enc.transform([[0, 1, 3]]).toarray()
-    # a3 = pd.concat([a2, a1], axis=1)
-    # a3.to_csv(r'E:\dataset\app_cate_onehot.csv', index = False, sep = ',')
-    # print a3.head(10)
 
-    '''
-    print train.adID.value_counts()
-    print train.camgaignID.value_counts()
-    print train.advertiserID.value_counts()
-    print train.residence.value_counts()
+
+
+
+
     '''
 
     #########################PCA降维算法，利用SVD的方法
@@ -345,44 +329,177 @@ def pre_deal():
     ######################################################################
     #########################################尝试提取时间信息
     '''
-    train1 = train.clickTime/100
-    train1 = train1%100
-    # train1 = DataFrame(train1)
-    train1 = train1.astype('int')
-    train['clickTime'] = train1
-    train.to_csv(r'E:\dataset\train_time.csv', index=False, sep=',')
-    '''
-    # train2 = train.clickTime%10000
-    # train2 = train2/100
-    #
-    # train1 = DataFrame(train1)
-    # train2 = DataFrame(train2)
-
-    # train1 = train1['clickTime'].astype('int')
-    # train2 = train2['clickTime'].astype('int')
 
 
+def my_grp_idx(group_by, order_by):
+    _ts = time.time()
+    _ord = np.lexsort((order_by, group_by))
+    print time.time() - _ts
+    _ts = time.time()
+    _ones = pd.Series(np.ones(group_by.size))
+    print time.time() - _ts
+    _ts = time.time()
+    # _cs1 = _ones.groupby(group_by[_ord]).cumsum().values
+    _cs1 = np.zeros(group_by.size)
+    _prev_grp = '___'
+    for i in xrange(1, group_by.size):
+        i0 = _ord[i]
+        if _prev_grp == group_by[i0]:
+            _cs1[i] = _cs1[i - 1] + 1
+        else:
+            _cs1[i] = 1
+            _prev_grp = group_by[i0]
+    print time.time() - _ts
+    _ts = time.time()
 
-    # print train1.clickTime.value_counts()
-    # print train2.clickTime.value_counts()
+    org_idx = np.zeros(group_by.size, dtype=np.int)
+    print time.time() - _ts
+    _ts = time.time()
+    org_idx[_ord] = np.asarray(xrange(group_by.size))
+    print time.time() - _ts
+    _ts = time.time()
 
-    # print train1.head(20)
-    # print train2.tail(20)
+    return _cs1[org_idx]
 
-    # user_pca.to_csv(r'E:\dataset\user_pca.csv', index=False, sep=',')
-    # test_x_r = pca.fit(test_x).transform(test_x)
+    #(t0, 'device_ip', None, 'day', 'pday', 'click', 10, None, True, True)
+def my_grp_cnt(group_by, count_by):
+    _ts = time.time()
+    _ord = np.lexsort((count_by, group_by))
+    print time.time() - _ts
+    _ts = time.time()
+    _ones = pd.Series(np.ones(group_by.size))
+    print time.time() - _ts
+    _ts = time.time()
+    # _cs1 = _ones.groupby(group_by[_ord]).cumsum().values
+    _cs1 = np.zeros(group_by.size)
+    _prev_grp = '___'
+    runnting_cnt = 0
+    for i in xrange(1, group_by.size):
+        i0 = _ord[i]
+        if _prev_grp == group_by[i0]:
+            if count_by[_ord[i - 1]] != count_by[i0]:
+                running_cnt += 1
+        else:
+            running_cnt = 1
+            _prev_grp = group_by[i0]
+        if i == group_by.size - 1 or group_by[i0] != group_by[_ord[i + 1]]:
+            j = i
+            while True:
+                j0 = _ord[j]
+                _cs1[j0] = running_cnt
+                if j == 0 or group_by[_ord[j - 1]] != group_by[j0]:
+                    break
+                j -= 1
 
-    # train = train.drop(['creativeID'],1)
-    # train.to_csv(r'E:\dataset\results\train4.csv', index=False, sep=',')
-    # #
-    # test = test.drop(['creativeID'], 1)
-    # test.to_csv(r'E:\dataset\results\test4.csv', index=False, sep=',')
-    #
-    # end = time.clock()
-    # print('Running time: %s Seconds' % (end - start))
-    #第一个参数是需要统计的
+    print time.time() - _ts
+    if True:
+        return _cs1
+    else:
+        _ts = time.time()
+
+        org_idx = np.zeros(group_by.size, dtype=np.int)
+        print time.time() - _ts
+        _ts = time.time()
+        org_idx[_ord] = np.asarray(xrange(group_by.size))
+        print time.time() - _ts
+        _ts = time.time()
+
+        return _cs1[org_idx]
+def calcDualKey(df, vn, vn2, key_src, key_tgt, vn_y, cred_k, mean0=None, add_count=False, fill_na=False):
+    if mean0 is None:
+        mean0 = df[vn_y].mean()
+
+    print "build src key"
+    _key_src = np.add(df[key_src].astype('string').values, df[vn].astype('string').values)    #当前天和该属性的和
+    print "build tgt key"
+    _key_tgt = np.add(df[key_tgt].astype('string').values, df[vn].astype('string').values)    #前一天和该属性的和
+    #再加一个属性
+    if vn2 is not None:
+        _key_src = np.add(_key_src, df[vn2].astype('string').values)
+        _key_tgt = np.add(_key_tgt, df[vn2].astype('string').values)
+
+    print "aggreate by src key"
+    grp1 = df.groupby(_key_src)
+    sum1 = grp1[vn_y].aggregate(np.sum)      #click项的求和
+    cnt1 = grp1[vn_y].aggregate(np.size)     #click的次数
+
+    print "map to tgt key"
+    vn_sum = 'sum_' + vn + '_' + key_src + '_' + key_tgt
+    _sum = sum1[_key_tgt].values    #总的点击次数
+    _cnt = cnt1[_key_tgt].values    #一共浏览的次数
+
+    if fill_na:
+        print "fill in na"
+        _cnt[np.isnan(_sum)] = 0
+        _sum[np.isnan(_sum)] = 0
+
+    print "calc exp"
+    if vn2 is not None:
+        vn_yexp = 'exp_' + vn + '_' + vn2 + '_' + key_src + '_' + key_tgt
+    else:
+        vn_yexp = 'exp_' + vn + '_' + key_src + '_' + key_tgt
+
+    df[vn_yexp] = (_sum + cred_k * mean0) / (_cnt + cred_k)
+
+    if add_count:
+        print "add counts"
+        vn_cnt_src = 'cnt_' + vn + '_' + key_src
+        df[vn_cnt_src] = _cnt        #当前天总的次数
+        grp2 = df.groupby(_key_tgt)
+        cnt2 = grp2[vn_y].aggregate(np.size)
+        _cnt2 = cnt2[_key_tgt].values
+        vn_cnt_tgt = 'cnt_' + vn + '_' + key_tgt
+        df[vn_cnt_tgt] = _cnt2
+
+def cntDualKey(df, vn, vn2, key_src, key_tgt, fill_na=False):
+    print "build src key"
+    _key_src = np.add(df[key_src].astype('string').values, df[vn].astype('string').values)  # 当前小时和某个属性的和
+    print "build tgt key"
+    _key_tgt = np.add(df[key_tgt].astype('string').values, df[vn].astype('string').values)  # 前一小时和某个属性的和
+
+    if vn2 is not None:
+        _key_src = np.add(_key_src, df[vn2].astype('string').values)
+        _key_tgt = np.add(_key_tgt, df[vn2].astype('string').values)
+
+    print "aggreate by src key"
+
+    grp1 = df.groupby(_key_src)
+    cnt1 = grp1[vn].aggregate(np.size)  # 当前1小时内出现该属性的次数
+
+    print "map to tgt key"
+    vn_sum = 'sum_' + vn + '_' + key_src + '_' + key_tgt  # 例于：sum_device_ip_ day_hour_ day_hour_prev
+    _cnt = cnt1[_key_tgt].values  #前一个小时点击该属性的次数
+
+    if fill_na is not None:
+        print "fill in na"
+        _cnt[np.isnan(_cnt)] = fill_na
+
+    vn_cnt_tgt = 'cnt_' + vn + '_' + key_tgt  #cnt_device_ip_day_hour_prev
+    if vn2 is not None:
+        vn_cnt_tgt += '_' + vn2
+
+    df[vn_cnt_tgt] = _cnt
 
 
+def get_count(data,cu):     #统计cu出现的次数，返回一个对应的列表
+    se = cu
+
+    tr = data[['label', se]]
+    tr1 = DataFrame(tr)
+    ######################
+    tr1 = tr1.sort(columns=se)
+    tr2 = tr1.groupby([se]).sum()
+    tr3 = tr1[se].value_counts()  # 统计每个值出现的次数
+    tr4 = pd.concat([tr2, tr3], axis=1)
+
+    tr4['rate'] = tr4.label.values.astype('float') / tr4[cu].values
+    tr4['id'] = tr4.index
+    tr4 = tr4.drop(['label',cu],1)
+
+    tr4.columns = [cu+'_rate', cu]
+
+    return tr4
+    # tr4.to_csv('feature_test.csv', index=False, sep=',')
 def calcLeaveOneOut2(df, vn, vn_y, cred_k, r_k, power, mean0=None, add_count=False):
     if mean0 is None:
         mean0 = df[vn_y].mean() * np.ones(df.shape[0])
@@ -506,7 +623,7 @@ def test_kmeans_cluster(dataset):
     # X3 = dataset.loc[:, ['creativeID','advertiserID']]
 
     # y = iris.target
-    est = KMeans(n_clusters=10, n_init=10, init='k-means++')
+    est = KMeans(n_clusters=30, n_init=10, init='k-means++')
     id_labels = pd.DataFrame()
 
     est.fit(X)
